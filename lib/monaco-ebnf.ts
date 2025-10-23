@@ -61,10 +61,10 @@ export function initializeMonacoEbnf(monaco: Monaco) {
 
       // コメント処理
       comment: [
-        [/[^/*]+/, 'comment'],
-        [/\*\//, 'comment', '@pop'],
-        [/\//, 'comment'],
-        [/\*/, 'comment'],
+        [/[^/*]+/, "comment"],
+        [/\*\//, "comment", "@pop"],
+        [/\//, "comment"],
+        [/\*/, "comment"],
       ],
 
       // ダブルクォート文字列

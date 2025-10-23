@@ -6,10 +6,16 @@ import { CheckIcon, CopyIcon, XIcon } from "lucide-react";
 import { type editor, Range } from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
-import { useDebounceCallback, useLocalStorage, useCopyToClipboard } from "usehooks-ts";
+import { toast } from "sonner";
+import {
+  useCopyToClipboard,
+  useDebounceCallback,
+  useLocalStorage,
+} from "usehooks-ts";
 import { initializeMonacoEbnf } from "@/lib/monaco-ebnf";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -28,8 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Button } from "./ui/button";
-import { toast } from "sonner";
 
 export function Playground({
   grammar,
@@ -44,7 +48,10 @@ export function Playground({
 }) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const monaco = useMonaco();
-  const [fontSize, setFontSize] = useLocalStorage("ebnf-playground-font-size", 20);
+  const [fontSize, setFontSize] = useLocalStorage(
+    "ebnf-playground-font-size",
+    20,
+  );
   const [grammarType, setGrammarType] = useLocalStorage<
     "W3C" | "BNF" | "Custom"
   >("grammar-type", "W3C");
@@ -56,8 +63,8 @@ export function Playground({
     useState<editor.IStandaloneCodeEditor | null>(null);
   const [inputEditor, setInputEditor] =
     useState<editor.IStandaloneCodeEditor | null>(null);
-  
-  const [copied, copy] = useCopyToClipboard();
+
+  const [_copiedText, copy] = useCopyToClipboard();
 
   const setGrammarDebounced = useDebounceCallback(setGrammar, 500);
   const setInputDebounced = useDebounceCallback(setInput, 500);
@@ -175,11 +182,15 @@ export function Playground({
                   <SelectItem value="system">System</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={() => {
-                copy(`${window.location.origin}?grammar=${encodeURIComponent(grammar)}&input=${encodeURIComponent(input)}`);
-                toast.success("Copied to clipboard");
-              }}>
-                <CopyIcon/>
+              <Button
+                onClick={() => {
+                  copy(
+                    `${window.location.origin}?grammar=${encodeURIComponent(grammar)}&input=${encodeURIComponent(input)}`,
+                  );
+                  toast.success("Copied to clipboard");
+                }}
+              >
+                <CopyIcon />
                 Share URL
               </Button>
             </div>
