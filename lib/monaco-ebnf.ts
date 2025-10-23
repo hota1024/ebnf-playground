@@ -1,6 +1,4 @@
 import type { Monaco } from "@monaco-editor/react";
-import gitHubDark from "monaco-themes/themes/GitHub Dark.json";
-import gitHubLight from "monaco-themes/themes/GitHub Light.json";
 
 export function initializeMonacoEbnf(monaco: Monaco) {
   // monaco.editor.defineTheme("vs", gitHubLight);

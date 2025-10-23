@@ -1,5 +1,6 @@
 "use client";
-import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+
+import Editor, { useMonaco } from "@monaco-editor/react";
 import { Grammars, type IRule, type IToken } from "ebnf";
 import { CheckIcon, XIcon } from "lucide-react";
 import { type editor, Range } from "monaco-editor";
@@ -9,6 +10,12 @@ import { useDebounceCallback, useLocalStorage } from "usehooks-ts";
 import { initializeMonacoEbnf } from "@/lib/monaco-ebnf";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "./ui/input-group";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -42,7 +49,7 @@ export function Playground() {
   const [rules, setRules] = useState<IRule[]>([]);
   const [ast, setAst] = useState<IToken | null>(null);
   const [matched, setMatched] = useState<boolean>(false);
-  const [grammarEditor, setGrammarEditor] =
+  const [_grammarEditor, setGrammarEditor] =
     useState<editor.IStandaloneCodeEditor | null>(null);
   const [inputEditor, setInputEditor] =
     useState<editor.IStandaloneCodeEditor | null>(null);
@@ -59,7 +66,7 @@ export function Playground() {
     }
 
     try {
-      const parser = new Grammars[grammarType].Parser(grammar + "\n");
+      const parser = new Grammars[grammarType].Parser(`${grammar}\n`);
       const rules = parser.grammarRules;
       const ast = parser.getAST(input);
       if (ast) {
@@ -77,10 +84,14 @@ export function Playground() {
           ?.getPositionAt(ast.end + ast.rest.length);
 
         if (restStart && restEnd) {
-          monaco?.editor.setModelMarkers(inputEditor?.getModel()!, "owner", [
+          const model = inputEditor?.getModel();
+          if (!model) {
+            return;
+          }
+          monaco?.editor.setModelMarkers(model, "owner", [
             {
               severity: monaco.MarkerSeverity.Error,
-              message: "Rest of the input: " + ast.rest,
+              message: `Rest of the input: ${ast.rest}`,
               startLineNumber: restStart.lineNumber,
               startColumn: restStart.column,
               endLineNumber: restEnd.lineNumber,
@@ -89,18 +100,25 @@ export function Playground() {
           ]);
 
           return () => {
-            monaco?.editor.setModelMarkers(
-              inputEditor?.getModel()!,
-              "owner",
-              [],
-            );
+            const model = inputEditor?.getModel();
+            if (!model) {
+              return;
+            }
+            monaco?.editor.setModelMarkers(model, "owner", []);
           };
         }
       }
     } catch (e) {
       setGrammarError(e instanceof Error ? e.message : "Unknown error");
     }
-  }, [grammar, input, grammarType, inputEditor]);
+  }, [
+    grammar,
+    input,
+    grammarType,
+    inputEditor,
+    monaco?.editor.setModelMarkers,
+    monaco?.MarkerSeverity.Error,
+  ]);
 
   return (
     <ResizablePanelGroup className="min-h-dvh" direction="vertical">
@@ -124,21 +142,35 @@ export function Playground() {
               </SelectContent>
             </Select>
             <div className="grow" />
-            <Select
-              value={theme ?? resolvedTheme}
-              onValueChange={(value) =>
-                setTheme(value as "dark" | "light" | "system")
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a theme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 items-center">
+              <InputGroup className="w-40">
+                <InputGroupInput
+                  className="text-right"
+                  placeholder="Font Size"
+                  value={fontSize.toString()}
+                  onChange={(e) => setFontSize(Number(e.target.value))}
+                />
+                <InputGroupAddon>Font size</InputGroupAddon>
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton>px</InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
+              <Select
+                value={theme ?? resolvedTheme}
+                onValueChange={(value) =>
+                  setTheme(value as "dark" | "light" | "system")
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <Editor
             defaultLanguage="ebnf"
@@ -254,7 +286,8 @@ function Tree({
 
   return (
     <div className="flex flex-col">
-      <div
+      <button
+        type="button"
         className={cn(
           "flex items-end hover:bg-blue-500/50 gap-4 p-2",
           token.children.length > 0 ? "border" : "border-l border-r border-b",
@@ -282,7 +315,7 @@ function Tree({
       >
         <div className="font-bold">{token.type}</div>
         <div className="text-muted-foreground text-sm">{token.text}</div>
-      </div>
+      </button>
       <div className="pl-4 flex flex-col">
         {token.children.map((child) => (
           <Tree key={child.start} token={child} inputEditor={inputEditor} />
