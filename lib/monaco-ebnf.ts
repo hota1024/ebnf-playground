@@ -26,8 +26,8 @@ export function initializeMonacoEbnf(monaco: Monaco) {
         [/^[a-zA-Z_]\w*(?=\s*=)/, "type.identifier"],
 
         // コメント
-        [/\(\*/, "comment", "@comment"],
-        [/\/\/.*$/, "comment"],
+        [/\/\*/, "comment", "@comment"],
+        [/\*\//, "comment", "@pop"],
 
         // 文字列（終端記号）
         [/"([^"\\]|\\.)*$/, "string.invalid"], // 閉じられていない文字列
@@ -61,10 +61,10 @@ export function initializeMonacoEbnf(monaco: Monaco) {
 
       // コメント処理
       comment: [
-        [/[^*(]+/, "comment"],
-        [/\*\)/, "comment", "@pop"],
-        [/\*/, "comment"],
-        [/\(/, "comment"],
+        [/[^/*]+/, 'comment'],
+        [/\*\//, 'comment', '@pop'],
+        [/\//, 'comment'],
+        [/\*/, 'comment'],
       ],
 
       // ダブルクォート文字列
@@ -94,8 +94,7 @@ export function initializeMonacoEbnf(monaco: Monaco) {
   // EBNFの言語設定
   monaco.languages.setLanguageConfiguration("ebnf", {
     comments: {
-      lineComment: "//",
-      blockComment: ["(*", "*)"],
+      blockComment: ["/*", "*/"],
     },
     brackets: [
       ["{", "}"],
