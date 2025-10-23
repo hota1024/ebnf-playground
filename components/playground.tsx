@@ -39,12 +39,12 @@ const defaultInput = `
 export function Playground() {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const monaco = useMonaco();
-  const [grammar, setGrammar] = useLocalStorage("grammar", defaultGrammar);
-  const [input, setInput] = useLocalStorage("input", defaultInput);
-  const [fontSize, setFontSize] = useState(20);
+  const [grammar, setGrammar] = useLocalStorage("ebnf-playground-grammar", defaultGrammar);
+  const [input, setInput] = useLocalStorage("ebnf-playground-input", defaultInput);
+  const [fontSize, setFontSize] = useLocalStorage("ebnf-playground-font-size", 20);
   const [grammarType, setGrammarType] = useLocalStorage<
     "W3C" | "BNF" | "Custom"
-  >("grammar-type", "Custom");
+  >("grammar-type", "W3C");
   const [grammarError, setGrammarError] = useState<string | null>(null);
   const [rules, setRules] = useState<IRule[]>([]);
   const [ast, setAst] = useState<IToken | null>(null);
