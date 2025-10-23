@@ -1,6 +1,6 @@
-import { Monaco } from "@monaco-editor/react";
-import gitHubLight from "monaco-themes/themes/GitHub Light.json";
+import type { Monaco } from "@monaco-editor/react";
 import gitHubDark from "monaco-themes/themes/GitHub Dark.json";
+import gitHubLight from "monaco-themes/themes/GitHub Light.json";
 
 export function initializeMonacoEbnf(monaco: Monaco) {
   // monaco.editor.defineTheme("vs", gitHubLight);
@@ -38,7 +38,7 @@ export function initializeMonacoEbnf(monaco: Monaco) {
         [/'/, "string", "@string_single"],
 
         // 特殊な演算子と区切り文字
-        [/[{}()\[\]]/, "@brackets"],
+        [/[{}()[\]]/, "@brackets"],
         [/[;]/, "delimiter.semicolon"],
         [/[,]/, "delimiter.comma"],
         [/\|/, "operator.or"],

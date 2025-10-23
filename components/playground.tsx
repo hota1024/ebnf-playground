@@ -1,16 +1,19 @@
 "use client";
-import Editor, { useMonaco, Monaco } from "@monaco-editor/react";
-import { editor, Range } from "monaco-editor";
+import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+import { Grammars, type IRule, type IToken } from "ebnf";
+import { CheckIcon, XIcon } from "lucide-react";
+import { type editor, Range } from "monaco-editor";
+import { useTheme } from "next-themes";
+import { useEffect, useRef, useState } from "react";
+import { useDebounceCallback, useLocalStorage } from "usehooks-ts";
 import { initializeMonacoEbnf } from "@/lib/monaco-ebnf";
+import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "./ui/resizable";
-import { useDebounceCallback, useLocalStorage } from "usehooks-ts";
-import { useTheme } from "next-themes";
-import { useEffect, useRef, useState } from "react";
-import { Grammars, IRule, IToken } from "ebnf";
 import {
   Select,
   SelectContent,
@@ -18,9 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Badge } from "./ui/badge";
-import { CheckIcon, XIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const defaultGrammar = `
 digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"\n
@@ -92,7 +92,7 @@ export function Playground() {
             monaco?.editor.setModelMarkers(
               inputEditor?.getModel()!,
               "owner",
-              []
+              [],
             );
           };
         }
@@ -245,7 +245,7 @@ function Tree({
   inputEditor: editor.IStandaloneCodeEditor | null;
 }) {
   const decorationsRef = useRef<editor.IEditorDecorationsCollection | null>(
-    null
+    null,
   );
 
   if (!inputEditor) {
@@ -257,7 +257,7 @@ function Tree({
       <div
         className={cn(
           "flex items-end hover:bg-blue-500/50 gap-4 p-2",
-          token.children.length > 0 ? "border" : "border-l border-r border-b"
+          token.children.length > 0 ? "border" : "border-l border-r border-b",
         )}
         onMouseEnter={() => {
           const start = inputEditor.getModel()?.getPositionAt(token.start);
