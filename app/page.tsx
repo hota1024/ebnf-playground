@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
+import { Suspense } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 const Playground = dynamic(
@@ -19,6 +20,14 @@ const defaultInput = `
 `.trim();
 
 export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Inner />
+    </Suspense>
+  );
+}
+
+function Inner() {
   const query = useSearchParams();
 
   if (query.has("grammar") || query.has("input")) {
