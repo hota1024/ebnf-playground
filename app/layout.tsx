@@ -1,7 +1,9 @@
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: "EBNF Playground",
@@ -23,7 +25,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

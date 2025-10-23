@@ -2,11 +2,11 @@
 
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { Grammars, type IRule, type IToken } from "ebnf";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, XIcon } from "lucide-react";
 import { type editor, Range } from "monaco-editor";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
-import { useDebounceCallback, useLocalStorage } from "usehooks-ts";
+import { useDebounceCallback, useLocalStorage, useCopyToClipboard } from "usehooks-ts";
 import { initializeMonacoEbnf } from "@/lib/monaco-ebnf";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
@@ -28,19 +28,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
-const defaultGrammar = `
-digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"\n
-`.trim();
-const defaultInput = `
-1
-`.trim();
-
-export function Playground() {
+export function Playground({
+  grammar,
+  input,
+  setGrammar,
+  setInput,
+}: {
+  grammar: string;
+  input: string;
+  setGrammar: (grammar: string) => void;
+  setInput: (input: string) => void;
+}) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const monaco = useMonaco();
-  const [grammar, setGrammar] = useLocalStorage("ebnf-playground-grammar", defaultGrammar);
-  const [input, setInput] = useLocalStorage("ebnf-playground-input", defaultInput);
   const [fontSize, setFontSize] = useLocalStorage("ebnf-playground-font-size", 20);
   const [grammarType, setGrammarType] = useLocalStorage<
     "W3C" | "BNF" | "Custom"
@@ -53,6 +56,8 @@ export function Playground() {
     useState<editor.IStandaloneCodeEditor | null>(null);
   const [inputEditor, setInputEditor] =
     useState<editor.IStandaloneCodeEditor | null>(null);
+  
+  const [copied, copy] = useCopyToClipboard();
 
   const setGrammarDebounced = useDebounceCallback(setGrammar, 500);
   const setInputDebounced = useDebounceCallback(setInput, 500);
@@ -170,6 +175,13 @@ export function Playground() {
                   <SelectItem value="system">System</SelectItem>
                 </SelectContent>
               </Select>
+              <Button onClick={() => {
+                copy(`${window.location.origin}?grammar=${encodeURIComponent(grammar)}&input=${encodeURIComponent(input)}`);
+                toast.success("Copied to clipboard");
+              }}>
+                <CopyIcon/>
+                Share URL
+              </Button>
             </div>
           </div>
           <Editor
